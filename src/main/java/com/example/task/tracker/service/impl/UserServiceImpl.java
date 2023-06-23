@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -67,6 +69,53 @@ public class UserServiceImpl implements UserService {
             return userDTO;
         }
         return null;
+    }
+
+    @Override
+    public String updateUser(UserDTO update) {
+
+        Optional<AuthUser> optionalAuthUser = userRepository.findById(update.getId());
+        try {
+
+            if (optionalAuthUser.isEmpty()) {
+                throw new RuntimeException("userId Not Found" + update.getId());
+
+            }
+
+            AuthUser existingUser = optionalAuthUser.get();
+
+            existingUser.setName(update.getName());
+            existingUser.setPassword(update.getPassword());
+            existingUser.setEmail(update.getEmail());
+
+            userRepository.save(existingUser);
+
+            return "user updated successfully";
+        } catch (Exception exp) {
+            throw new RuntimeException("Failed to update user" + update.getId());
+        }
+    }
+
+    @Override
+    public List<UserDTO> getAll() {
+
+        List<AuthUser> users = userRepository.findAll();
+        List<UserDTO> userDTOS = new ArrayList<>();
+
+        for (AuthUser user :users){
+
+            UserDTO userDTO = new UserDTO();
+
+            userDTO.setId(user.getId());
+            userDTO.setName(user.getName());
+            userDTO.setEmail(user.getEmail());
+            userDTO.setPassword(user.getPassword());
+            userDTO.setFirstName(user.getFirstName());
+            userDTO.setLastName(user.getLastName());
+
+            userDTOS.add(userDTO);
+        }
+        return userDTOS;
     }
 
 
